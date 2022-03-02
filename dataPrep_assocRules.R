@@ -268,8 +268,6 @@ plot(top20rules, method = "grouped")
 # summary(clustering)
 
 #--------- Data visualisation the rules -----------#
-git config --global user.email "you@example.com"
-git config --global user.name "Your Name"
 
 data.all=read.csv("Training_all.csv", stringsAsFactors = TRUE, strip.white = TRUE)
 data.all.symptoms=select(data.all,-"prognosis",-"Severity")
