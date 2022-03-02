@@ -405,29 +405,61 @@ library(janitor)
 data.clean=read.csv("Training_clean.csv", stringsAsFactors = TRUE, strip.white = TRUE)
 summary(data.clean$Severity)
 
-df.AnE = data.clean[data.clean$Severity == 'A&E',]
-df.Poly = data.clean[data.clean$Severity == 'Polyclinic',]
-df.NoMed = data.clean[data.clean$Severity == 'No_Medical_Attention_Req',]
-
-#No empty columns - wide spread of symptoms across all categories
-df.AnE = remove_empty(df.AnE, which="cols")
-df.Poly = remove_empty(data.clean[data.clean$Severity == 'Polyclinic',], which="cols")
-df.NoMed = remove_empty(data.clean[data.clean$Severity == 'No_Medical_Attention_Req',], which="cols")
-
-data.all = read.csv("Training_all.csv", stringsAsFactors = TRUE, strip.white = TRUE)
-data.small = subset(data.all, select = -c(yellowish_skin,yellowing_of_eyes, dark_urine, Severity))
-
+#
+# function to get frequency table of all symptoms
+#
 getFreq = function(data){
+  
   # removes prognosis from list of columns names to get symptoms
   symptoms = colnames(data)[-length(colnames(data))]
-
+  
   count = c()
-  for(s in symptoms){
-    count = c(count, sum(data$s == 1))
+  for(i in 1:(ncol(data)-1)){
+    frequencies = as.integer(table(data[,i]))
+    count = c(count, frequencies[length(frequencies)])
   }
   output = data.frame(symptoms = symptoms, count = count)
   return(output) 
 }
+
+df.AnE = data.clean[data.clean$Severity == 'A&E',]
+df.Poly = data.clean[data.clean$Severity == 'Polyclinic',]
+df.NoMed = data.clean[data.clean$Severity == 'No_Medical_Attention_Req',]
+
+df.AnE = df.AnE[, colSums(df.AnE != 0) > 0]
+df.Poly = df.Poly[, colSums(df.Poly != 0) > 0]
+df.NoMed = df.NoMed[, colSums(df.NoMed != 0) > 0]
+
+freq.AnE = getFreq(df.AnE)
+freq.Poly = getFreq(df.Poly)
+freq.NoMed = getFreq(df.NoMed)
+
+ggplot(data = freq.AnE, aes(symptoms)) +
+  geom_bar(stat="bin")
+
+ggplot(freq.AnE, aes(x = symptoms, y = count)) + 
+  geom_bar(stat = "identity", color = "black", fill = "grey") +
+  labs(title = "Frequency of Symptoms (A&E)\n", x = "\nSymptoms", y = "Frequency\n") +
+  coord_flip()+
+  theme_classic()
+
+ggplot(freq.Poly, aes(x = symptoms, y = count)) + 
+  geom_bar(stat = "identity", color = "black", fill = "grey") +
+  labs(title = "Frequency of Symptoms (Polyclinic)\n", x = "\nSymptoms", y = "Frequency\n") +
+  coord_flip()+
+  theme_classic()
+
+ggplot(freq.NoMed, aes(x = symptoms, y = count)) + 
+  geom_bar(stat = "identity", color = "black", fill = "grey") +
+  labs(title = "Frequency of Symptoms (No Medical Attention)\n", x = "\nSymptoms", y = "Frequency\n") +
+  coord_flip()+
+  theme_classic()
+
+#
+# Import dataset to look at symptoms and prognosis links
+#
+data.all = read.csv("Training_all.csv", stringsAsFactors = TRUE, strip.white = TRUE)
+data.small = subset(data.all, select = -c(yellowish_skin,yellowing_of_eyes, dark_urine, Severity))
 
 data.fungal = data.small[data.small$prognosis == "Fungal infection",]
 data.fungal = data.fungal[, colSums(data.fungal != 0) > 0]
@@ -441,7 +473,6 @@ data.gastro = data.small[data.small$prognosis == "Gastroenteritis",]
 data.gastro = data.gastro[, colSums(data.gastro != 0) > 0]
 gastro.freq = getFreq(data.gastro)
 
-# why doesn't this one work?
 data.hepB = data.small[data.small$prognosis == "Hepatitis B",]
 data.hepB = data.hepB[, colSums(data.hepB != 0) > 0]
 hepB.freq = getFreq(data.hepB)
