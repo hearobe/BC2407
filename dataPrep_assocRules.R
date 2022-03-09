@@ -486,6 +486,7 @@ hepB.freq = getFreq(data.hepB)
 #--------- Machine Learning model -----------#
 
 #--------- Random Forest -----------
+library(randomForest)
 
 #Prepping the data
 data.clean=read.csv("Training_clean.csv", stringsAsFactors = TRUE, strip.white = TRUE)
