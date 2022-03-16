@@ -12,31 +12,19 @@ data.clean$Severity_num = ifelse(data.clean$Severity == "A&E", 1,
 data.clean = data.frame(data.clean)
 
 data = subset(data.clean, select = -c(Severity))
-passexam.dt$Outcome <- factor(passexam.dt$Outcome)
 
 
 # ============================ Severity_num ==============================
-set.seed(6)
-
-#Splitting into trainset and testset
-train <- sample.split(Y = data$Severity_num, SplitRatio = 0.7)
-train
-trainset <- subset(data, train == T)
-testset <- subset(data, train == F)
-
-#Checking the similarity of split of Y variable
-summary(trainset$Severity_num)
-summary(testset$Severity_num)
 
 #Creating the max CART model for Severity_num.
-cartMax <- rpart(Severity_num~. , data = trainset, method = 'class', control = rpart.control(minsplit = 10,cp = 0)) 
+cartMax <- rpart(Severity_num~. , data = data, method = 'class', control = rpart.control(minsplit = 2,cp = 0)) 
 
-#rpart.plot(cartMax)
+rpart.plot(cartMax)
 
 printcp(cartMax)
 plotcp(cartMax, main = "Subtrees")
 
-# ------------- Below is used to find the CP error Cap. --------
+# ------------- Below is used to find the CP error Cap. --------------------------
 
 #store the cptable
 dt <- data.table(cartMax$cptable)
@@ -57,7 +45,19 @@ optimal_cp_index <- min(dt[(xerror < errorcap), index])
 cp.opt = sqrt(dt[index ==optimal_cp_index , CP]*dt[index == optimal_cp_index -1, CP])
 cp.opt
 
-# ----------------------------------------------------
+----------------------------------------------------------------------------------------------
+  #Compute optimal CP on model
+  ## Compute min CVerror + 1SE in maximal tree cart_max.
+  CVerror.cap <- cartMax$cptable[which.min(cartMax$cptable[,"xerror"]), "xerror"] + cartMax$cptable[which.min(cartMax$cptable[,"xerror"]), "xstd"]
+## Find the optimal CP region whose CV error is just below CVerror.cap in maximal tree cart_max.
+i <- 1; j<- 4
+while (cartMax$cptable[i,j] > CVerror.cap) {
+  i <- i + 1
+}
+## Get geometric mean of the two identified CP values in the optimal region if optimal tree has at least one split.
+cp.opt = ifelse(i > 1, sqrt(cartMax$cptable[i,1] * cartMax$cptable[i-1,1]), 1)
+cp.opt
+# --------------------------------- Pruning ----------------------------------------------------
 
 cart<- prune(cartMax,cp=cp.opt)
 print(cart)
@@ -72,22 +72,38 @@ scaledVarImpt
 #----------------------------------- Accuracy ----------------------------------------------------
 
 # Confusion Matrix on Trainset
-cart.predict.train <- predict(cart, newdata = trainset, type = "class")
+cart.predict.train <- predict(cart, newdata = data, type = "class")
 
-table.train <- table(Trainset.Actual = trainset$Severity_num, cart.predict.train, deparse.level = 2)
-table.train
-round(prop.table(table.train),3)
+library(caret)
+confusion_matrix_train <- table(data[,ncol(data)], cart.predict.train, deparse.level = 2)
+confusion_matrix_train
+confusionMatrix(confusion_matrix_train)
+# Accuracy : 1
 
-# Overall Accuracy
-mean(cart.predict.train == trainset$Severity_num)
 
 
 # Confusion Matrix on Testset
-cart.predict.test <- predict(cart, newdata = testset, type = "class")
+data.test=read.csv("Testing_clean.csv")
 
-table.test <- table(Testset.Actual = testset$Severity_num, cart.predict.test, deparse.level = 2)
-table.test
-round(prop.table(table.test),3)
+data.test$Severity_num = ifelse(data.test$severity == "A&E", 1,
+                                ifelse(data.test$severity == "Polyclinic", 2,
+                                       ifelse(data.test$severity == "No_Medical_Attention_Req", 3, 3)))
 
-# Overall Accuracy
-mean(cart.predict.test == testset$Severity_num)
+data.test = data.frame(data.test)
+
+data1 = subset(data.test, select = -c(severity))
+
+
+cart.predict.test <- predict(cart, newdata = data1, type = "class")
+
+confusion_matrix_test <- table(data.test[,ncol(data.test)], cart.predict.test, deparse.level = 2)
+confusion_matrix_test
+confusionMatrix(confusion_matrix_test)
+# Accuracy : 0.9762
+
+
+
+
+
+
+

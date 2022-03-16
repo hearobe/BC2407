@@ -435,10 +435,9 @@ freq.AnE = getFreq(df.AnE)
 freq.Poly = getFreq(df.Poly)
 freq.NoMed = getFreq(df.NoMed)
 
-ggplot(data = freq.AnE, aes(symptoms)) +
-  geom_bar(stat="bin")
+freq.AnE = freq.AnE[order(freq.AnE$count, decreasing=TRUE),]
 
-ggplot(freq.AnE, aes(x = symptoms, y = count)) + 
+ggplot(freq.AnE, aes(x = reorder(symptoms,(count)), y = count)) + 
   geom_bar(stat = "identity", color = "black", fill = "grey") +
   labs(title = "Frequency of Symptoms (A&E)\n", x = "\nSymptoms", y = "Frequency\n") +
   coord_flip()+
@@ -477,6 +476,12 @@ gastro.freq = getFreq(data.gastro)
 data.hepB = data.small[data.small$prognosis == "Hepatitis B",]
 data.hepB = data.hepB[, colSums(data.hepB != 0) > 0]
 hepB.freq = getFreq(data.hepB)
+
+ggplot(hepB.freq, aes(x = reorder(symptoms,(count)), y = count)) + 
+  geom_bar(stat = "identity", color = "black", fill = "grey") +
+  labs(title = "Frequency of Symptoms (HepB)\n", x = "\nSymptoms", y = "Frequency\n") +
+  coord_flip()+
+  theme_classic()
 
 # In general most diseases have 4-10 symptoms
 # Each patient with the disease has most or all symptoms,
