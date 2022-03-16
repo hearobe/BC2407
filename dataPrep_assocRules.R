@@ -491,6 +491,7 @@ ggplot(hepB.freq, aes(x = reorder(symptoms,(count)), y = count)) +
 #--------- Machine Learning model -----------#
 
 #--------- Random Forest -----------
+library(randomForest)
 
 #Prepping the data
 data.clean=read.csv("Training_clean.csv", stringsAsFactors = TRUE, strip.white = TRUE)
