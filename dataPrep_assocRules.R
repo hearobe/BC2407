@@ -436,6 +436,17 @@ freq.Poly = getFreq(df.Poly)
 freq.NoMed = getFreq(df.NoMed)
 
 freq.AnE = freq.AnE[order(freq.AnE$count, decreasing=TRUE),]
+prop.AnE = freq.AnE
+prop.AnE$count = prop.AnE$count/nrow(df.AnE)
+
+ggplot(prop.AnE, aes(x = reorder(symptoms,(count)), y = count)) + 
+  geom_bar(stat = "identity", color = "black", fill = "grey") +
+  labs(title = "Proportion of Symptoms (A&E)\n", x = "\nSymptoms", y = "Proportion\n") +
+  coord_flip()+
+  theme_classic()
+
+# con
+prop.test(x=freq.AnE$count[freq.AnE$symptoms == "vomiting"], n=nrow(df.AnE), conf.level=.95, correct=FALSE)
 
 ggplot(freq.AnE, aes(x = reorder(symptoms,(count)), y = count)) + 
   geom_bar(stat = "identity", color = "black", fill = "grey") +
