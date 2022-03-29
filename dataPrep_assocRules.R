@@ -572,6 +572,59 @@ confusionMatrix(confusion_matrix)
 ### Test set accuracy rate is 0.9762
 
 
+# ------------------------------------------------
+# ----------------70-30 Testset-------------------
+# ------------------------------------------------
+
+library(randomForest)
+library(caTools)
+
+train.clean=read.csv("Training_clean.csv")
+test.clean=read.csv("Testing_clean.csv")
+names(test.clean)[names(test.clean) == "severity"] <- "Severity"
+
+train.clean = data.frame(train.clean)
+test.clean = data.frame(test.clean)
+
+data = rbind(train.clean, test.clean)
+
+for(i in 1:ncol(data)){ #Factorise all the columns
+  data[,i] <- as.factor(data[,i])
+}
+summary(data)
+sum(is.na(data)) #No missing data
+
+set.seed(2)
+
+train <- sample.split(Y = data$Severity, SplitRatio = 0.7)
+trainset <- subset(data, train == T)
+testset <- subset(data, train == F)
+
+set.seed(1) 
+m.RF.2 <- randomForest(Severity ~ . , data = trainset, importance = T) #Default B=500, RSF= floor(sqrt(ncol(x))) since categorical Y
+m.RF.2
+
+#Train Set error
+##Prediction
+y2.train.predict = predict(m.RF.2, newdata = trainset[-ncol(trainset)])
+y2.train.predict
+
+##Confusion matrix
+library(caret)
+confusion_matrix_train2<-table(trainset[,ncol(trainset)], y2.train.predict, deparse.level = 2)
+confusion_matrix_train2
+confusionMatrix(confusion_matrix_train2)
+
+##Prediction
+y2.predict = predict(m.RF.2, newdata = testset[-ncol(testset)])
+y2.predict
+
+##Confusion matrix
+library(caret)
+confusion_matrix2<-table(testset[,ncol(testset)], y2.predict, deparse.level = 2)
+confusion_matrix2
+confusionMatrix(confusion_matrix2)
+
 #----------helpful references------------#
 ##How to filter and subset dataframe based on certain values in columns
 ###https://stackoverflow.com/questions/40032674/filter-subset-if-a-string-contains-certain-characters-in-r

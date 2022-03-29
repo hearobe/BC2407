@@ -1,5 +1,4 @@
 library(neuralnet)
-library(nnet)
 
 data.clean=read.csv("Training_clean.csv")
 
@@ -72,7 +71,9 @@ pred.test.m3 = max.col(data.frame(test.m3$net.result))
 table(data.test$Severity_num,pred.test.m3)
 
 
-# ----------------Cross-Validation and Largest Testset------------------
+# ------------------------------------------------
+# ----------------70-30 Testset-------------------
+# ------------------------------------------------
 
 library(caTools)
 
@@ -88,9 +89,6 @@ test.clean$Severity_num = ifelse(test.clean$Severity == "A&E", 1,
                                  ifelse(test.clean$Severity == "Polyclinic", 2,
                                         ifelse(test.clean$Severity == "No_Medical_Attention_Req", 3, 3)))
 
-train.clean = data.frame(train.clean)
-test.clean = data.frame(test.clean)
-
 data = rbind(train.clean, test.clean)
 data = subset(data, select = -c(Severity))
 
@@ -102,8 +100,7 @@ train <- sample.split(Y = data$Severity_num, SplitRatio = 0.7)
 trainset <- subset(data, train == T)
 testset <- subset(data, train == F)
 
-data.clean = data.frame(trainset)
-data.clean = data.frame(testset)
+
 trainset$l1 = ifelse(trainset$Severity_num == 1, 1, 0)
 trainset$l2 = ifelse(trainset$Severity_num == 2, 1, 0)
 trainset$l3 = ifelse(trainset$Severity_num == 3, 1, 0)
