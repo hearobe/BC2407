@@ -76,6 +76,7 @@ table(data.test$Severity_num,pred.test.m3)
 # ------------------------------------------------
 
 library(caTools)
+library(caret)
 
 train.clean=read.csv("Training_clean.csv")
 test.clean=read.csv("Testing_clean.csv")
@@ -117,7 +118,9 @@ m4 = neuralnet(l1+l2+l3~., data = trainset.noS, hidden=2,
                act.fct='logistic', linear.output = FALSE)
 
 pred.m4 = max.col(data.frame(m4$net.result))
-table(trainset$Severity_num, pred.m4)
+cmat.train.70 = table(trainset$Severity_num, pred.m4)
+confusionMatrix(cmat.train.70)
+
 
 #Test the resulting output
 temp_test <- subset(testset, select = -c(l1, l2, l3, Severity_num))
@@ -126,4 +129,6 @@ m4.test.results <- compute(m4, testset.noS)
 results <- data.frame(actual = testset$dividend, prediction = nn.results$net.result)
 
 pred.m4.test = max.col(data.frame(m4.test.results$net.result))
-table(testset$Severity_num, pred.m4.test)
+cmat.test.70 = table(testset$Severity_num, pred.m4.test)
+confusionMatrix(cmat.test.70)
+
