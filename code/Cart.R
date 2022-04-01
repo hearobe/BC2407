@@ -3,7 +3,7 @@ library(rpart)
 library(rpart.plot)
 library(caTools)
 
-data.clean=read.csv("Training_clean.csv")
+data.clean=read.csv("data/Training_clean.csv")
 
 data.clean$Severity_num = ifelse(data.clean$Severity == "A&E", 1,
                                  ifelse(data.clean$Severity == "Polyclinic", 2,
@@ -83,7 +83,7 @@ confusionMatrix(confusion_matrix_train)
 
 
 # Confusion Matrix on Testset
-data.test=read.csv("Testing_clean.csv")
+data.test=read.csv("data/Testing_clean.csv")
 
 data.test$Severity_num = ifelse(data.test$severity == "A&E", 1,
                                 ifelse(data.test$severity == "Polyclinic", 2,
@@ -108,8 +108,8 @@ confusionMatrix(confusion_matrix_test)
 
 library(caTools)
 
-train.clean=read.csv("Training_clean.csv")
-test.clean=read.csv("Testing_clean.csv")
+train.clean=read.csv("data/Training_clean.csv")
+test.clean=read.csv("data/Testing_clean.csv")
 names(test.clean)[names(test.clean) == "severity"] <- "Severity"
 
 train.clean$Severity_num = ifelse(train.clean$Severity == "A&E", 1,

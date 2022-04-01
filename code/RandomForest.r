@@ -3,7 +3,7 @@
 library(randomForest)
 
 #Prepping the data
-data.clean=read.csv("Training_clean.csv", stringsAsFactors = TRUE, strip.white = TRUE)
+data.clean=read.csv("data/Training_clean.csv", stringsAsFactors = TRUE, strip.white = TRUE)
 data.clean.fac<-data.frame(data.clean)
 for(i in 1:ncol(data.clean.fac)){ #Factorise all the columns
   data.clean.fac[,i] <- as.factor(data.clean.fac[,i])
@@ -51,7 +51,7 @@ confusionMatrix(confusion_matrix_train)
 
 #Test Set Error
 ##Prepping test set data
-data.test.clean = read.csv("Testing_clean.csv", stringsAsFactors = TRUE, strip.white = TRUE)
+data.test.clean = read.csv("data/Testing_clean.csv", stringsAsFactors = TRUE, strip.white = TRUE)
 summary(data.test.clean)
 for(i in 1:ncol(data.test.clean)){ #Factorise all the columns
   data.test.clean[,i] <- as.factor(data.test.clean[,i])
@@ -77,8 +77,8 @@ confusionMatrix(confusion_matrix)
 library(randomForest)
 library(caTools)
 
-train.clean=read.csv("Training_clean.csv")
-test.clean=read.csv("Testing_clean.csv")
+train.clean=read.csv("data/Training_clean.csv")
+test.clean=read.csv("data/Testing_clean.csv")
 names(test.clean)[names(test.clean) == "severity"] <- "Severity"
 
 train.clean = data.frame(train.clean)
