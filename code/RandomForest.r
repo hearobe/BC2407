@@ -110,7 +110,6 @@ y2.train.predict
 ##Confusion matrix
 library(caret)
 confusion_matrix_train2<-table(trainset[,ncol(trainset)], y2.train.predict, deparse.level = 2)
-confusion_matrix_train2
 confusionMatrix(confusion_matrix_train2)
 
 ##Prediction
@@ -120,5 +119,4 @@ y2.predict
 ##Confusion matrix
 library(caret)
 confusion_matrix2<-table(testset[,ncol(testset)], y2.predict, deparse.level = 2)
-confusion_matrix2
 confusionMatrix(confusion_matrix2)
